@@ -1,9 +1,27 @@
 #include <Arduino.h>
+class ModifiedADC
+{
+	private:
+		inline double interpolation_function(double x);
+	public:
+		ModifiedADC();
+		~ModifiedADC();
+		double readVolts(uint8_t pin, uint16_t tolerance = 10);
+		uint16_t readMilliVolts(uint8_t pin, uint16_t tolerance = 10);
+		uint16_t read(uint8_t pin, uint16_t tolerance = 10);
+};
 
-double ModifiedAnalogReadVolts(uint8_t pin, uint16_t tolerance = 10);
-inline double linear_regression(double x);
+ModifiedADC::ModifiedADC()
+{
 
-inline double interpolation_function(double x)
+}
+
+ModifiedADC::~ModifiedADC()
+{
+
+}
+
+double ModifiedADC::interpolation_function(double x)
 {
 	if((56.0217 <= x) && (x <= 72.4706))
 	{
@@ -115,7 +133,7 @@ inline double interpolation_function(double x)
 	}
 }
 
-double ModifiedAnalogReadVolts(uint8_t pin, uint16_t tolerance)
+double ModifiedADC::readVolts(uint8_t pin, uint16_t tolerance)
 {
 	uint32_t data[100] = {0};
 	for (int i = 0; i < 100; i++)
@@ -142,4 +160,14 @@ double ModifiedAnalogReadVolts(uint8_t pin, uint16_t tolerance)
 		sum += data[i];
 	}
 	return interpolation_function(double(sum / (right - left + 1)));
+}
+
+uint16_t ModifiedADC::readMilliVolts(uint8_t pin, uint16_t tolerance)
+{
+	return uint16_t(readVolts(pin, tolerance) * 1000);
+}
+
+uint16_t ModifiedADC::read(uint8_t pin, uint16_t tolerance)
+{
+	return uint16_t(readVolts(pin, tolerance) * 4095 / 3.3);
 }
